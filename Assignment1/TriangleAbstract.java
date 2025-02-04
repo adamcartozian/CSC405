@@ -1,4 +1,4 @@
-
+package Assignment1;
 
 /**
  * Abstract class for creating a Triangle class

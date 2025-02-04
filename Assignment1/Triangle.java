@@ -1,4 +1,5 @@
 // Adam Cartozian
+package Assignment1;
 
 public class Triangle extends TriangleAbstract {
     private VectorAbstract v1;

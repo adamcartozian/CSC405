@@ -1,6 +1,4 @@
-
-
-
+package Assignment1;
 public class VectorTriangleTest {
 	/**
 	 * Test various methods of the TriangleAbstract and VectorAbstract classes

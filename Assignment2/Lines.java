@@ -1,3 +1,4 @@
+package Assignment2;
 // Adam Cartozian 
 
 import java.awt.Color;

@@ -1,3 +1,4 @@
+package Assignment2;
 import Common.ReadWriteImage;
 
 public class LineTest {

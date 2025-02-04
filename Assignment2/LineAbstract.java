@@ -1,6 +1,7 @@
 /**
  * Line drawing into a frame buffer
  */
+package Assignment2;
 public abstract class LineAbstract {
 	/**
 	 * Draw a line segment using the two point formula
