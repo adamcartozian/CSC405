@@ -1,8 +1,5 @@
 package Assignment4;
 
-import Assignment1.VectorAbstract;
-import Assignment1.Vector;
-
 public class Triangle extends TriangleAbstract {
      private VectorAbstract v1;
     private VectorAbstract v2;

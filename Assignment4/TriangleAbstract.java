@@ -1,5 +1,4 @@
 package Assignment4;
-import Assignment1.VectorAbstract;
 /**
  * Abstract class for creating a Triangle class
  */

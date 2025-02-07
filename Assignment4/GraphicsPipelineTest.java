@@ -1,8 +1,6 @@
 package Assignment4;
 
 import Common.ReadWriteImage;
-import Assignment1.VectorAbstract;
-import Assignment1.Vector;
 
 public class GraphicsPipelineTest {
 	public static void main(String[] args) 	{
