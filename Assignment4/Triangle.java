@@ -1,5 +1,8 @@
 package Assignment4;
 
+import Assignment3.ScanConvertAbstract;
+import Assignment3.ScanConvertLine;
+
 public class Triangle extends TriangleAbstract {
      private VectorAbstract v1;
     private VectorAbstract v2;
@@ -58,7 +61,24 @@ public class Triangle extends TriangleAbstract {
 
     @Override
     public void render(int[][][] framebuffer, boolean shownormal) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'render'");
+       ScanConvertAbstract sca = new ScanConvertLine();
+        for(int i = 0; i < vertices.length; i++){
+            try{
+                int j = i + 1;
+                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[j].getX(), (int)vertices[j].getY(), framebuffer);        
+            }
+            catch (ArrayIndexOutOfBoundsException e){
+                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[0].getX(), (int)vertices[0].getY(), framebuffer); 
+            }
+        }
+
+        if(shownormal == true){
+            VectorAbstract Normal = getNormal().unit().mult(20);
+            VectorAbstract Center = getCenter();
+            Normal = Normal.add(Center);
+
+            sca.bresenham((int)Center.getX(), (int)Center.getY(), (int)Normal.getX(), (int)Normal.getY(), framebuffer);
+        }
+
     }
 }
