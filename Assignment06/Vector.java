@@ -3,19 +3,15 @@ package Assignment06;
 
 public class Vector extends VectorAbstract {
 
-    public Vector() {
+    /*public Vector() {
         this.x = 0;
         this.y = 0;
         this.z = 0;
-    }
-
-    public Vector(double xin, double yin, double zin){
-        this.x = xin;
-        this.y = yin;
-        this.z = zin;
-    }
+        this.color = null;
+    }*/
     
     public Vector(double xin, double yin, double zin, Color c){
+        super();
         this.x = xin;
         this.y = yin;
         this.z = zin;
@@ -41,12 +37,12 @@ public class Vector extends VectorAbstract {
         double i = ((this.y * v2.getZ()) - (this.z * v2.getY()));
         double j = ((this.z * v2.getX()) - (this.x * v2.getZ()));
         double k = ((this.x * v2.getY()) - (this.y * v2.getX()));
-        return new Vector(i, j, k);
+        return new Vector(i, j, k, this.color);
     }
 
     @Override
     public VectorAbstract unit() {
-        return new Vector((this.x/this.length()), (this.y / this.length()), (this.z / this.length()));
+        return new Vector((this.x/this.length()), (this.y / this.length()), (this.z / this.length()), this.color);
     }
 
     @Override
@@ -56,16 +52,20 @@ public class Vector extends VectorAbstract {
 
     @Override
     public VectorAbstract add(VectorAbstract v2) {
-        return new Vector(this.x + v2.getX(), this.y + v2.getY(), this.z + v2.getZ());
+        return new Vector(this.x + v2.getX(), this.y + v2.getY(), this.z + v2.getZ(), this.color);
     }
 
     @Override
     public VectorAbstract sub(VectorAbstract v2) {
-        return new Vector(this.x - v2.getX(), this.y - v2.getY(), this.z - v2.getZ());
+        return new Vector(this.x - v2.getX(), this.y - v2.getY(), this.z - v2.getZ(), this.color);
     }
 
     @Override
     public VectorAbstract mult(double scale) {
-        return new Vector(scale * this.x, scale * this.y, scale * this.z);
+        return new Vector(scale * this.x, scale * this.y, scale * this.z, this.color);
+    }
+
+    public VectorAbstract copy(){
+        return new Vector(x, y, z, new Color(color.getR(), color.getG(), color.getB()));
     }
 }

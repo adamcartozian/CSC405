@@ -12,13 +12,10 @@ public class AffineTransformation extends AffineTransformationAbstract{
         double[][] originTofp = {{1, 0, 0, fixedpoint.getX()}, {0, 1, 0, fixedpoint.getY()}, {0, 0, 1, fixedpoint.getZ()}, {0, 0, 0, 1}};
         
         MatrixAbstract mrotx = new Matrix(rotx);
-        //MatrixAbstract mfpToOrgin = new Matrix(fpToOrigin);
-        MatrixAbstract mfpToOrgin = translate(fixedpoint.mult(-1), data);
-        //MatrixAbstract moriginToFp = new Matrix(originTofp);
-        MatrixAbstract mrotate = mrotx.mult(mfpToOrgin);
-        //MatrixAbstract t = moriginToFp.mult(mrotx.mult(mfpToOrgin));
-        //MatrixAbstract rotated = t.mult(data.transpose());
-        MatrixAbstract rotated = translate(fixedpoint, mrotate);
+        MatrixAbstract mfpToOrgin = new Matrix(fpToOrigin);
+        MatrixAbstract moriginToFp = new Matrix(originTofp);
+        MatrixAbstract t = moriginToFp.mult(mrotx.mult(mfpToOrgin));
+        MatrixAbstract rotated = t.mult(data.transpose()).transpose();
         return rotated;
 
         // translate to origin, rotate, translate back
@@ -34,7 +31,7 @@ public class AffineTransformation extends AffineTransformationAbstract{
         MatrixAbstract mfpToOrgin = new Matrix(fpToOrigin);
         MatrixAbstract moriginToFp = new Matrix(originTofp);
         MatrixAbstract t = moriginToFp.mult(mroty.mult(mfpToOrgin));
-        MatrixAbstract rotated = t.mult(data.transpose());
+        MatrixAbstract rotated = t.mult(data.transpose()).transpose();
         return rotated;
     }
 
@@ -48,7 +45,7 @@ public class AffineTransformation extends AffineTransformationAbstract{
         MatrixAbstract mfpToOrgin = new Matrix(fpToOrigin);
         MatrixAbstract moriginToFp = new Matrix(originTofp);
         MatrixAbstract t = moriginToFp.mult(mrotz.mult(mfpToOrgin));
-        MatrixAbstract rotated = t.mult(data.transpose());
+        MatrixAbstract rotated = t.mult(data.transpose()).transpose();
         return rotated;
     }
 
@@ -59,7 +56,7 @@ public class AffineTransformation extends AffineTransformationAbstract{
         double z = transvec.getZ();
         double [][] translate = {{1, 0, 0, x},{0, 1, 0, y}, {0, 0, 1, z}, {0, 0, 0, 1}};
         MatrixAbstract mtrans = new Matrix(translate);
-        MatrixAbstract translated = data.mult(mtrans);
+        MatrixAbstract translated = mtrans.mult(data.transpose()).transpose();
         return translated;
     }
 
@@ -76,7 +73,7 @@ public class AffineTransformation extends AffineTransformationAbstract{
         MatrixAbstract mfpToOrgin = new Matrix(fpToOrigin);
         MatrixAbstract moriginToFp = new Matrix(originTofp);
         MatrixAbstract t = moriginToFp.mult(mscale.mult(mfpToOrgin));
-        MatrixAbstract scaled = t.mult(data.transpose());
+        MatrixAbstract scaled = t.mult(data.transpose()).transpose();
         return scaled;
     }
     

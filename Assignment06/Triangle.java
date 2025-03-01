@@ -1,7 +1,5 @@
 package Assignment06;
 
-import Assignment3.ScanConvertAbstract;
-import Assignment3.ScanConvertLine;
 import Matrix.Matrix;
 import Matrix.MatrixAbstract;
 
@@ -25,6 +23,20 @@ public class Triangle extends TriangleAbstract {
         vertices[0] = v01;
         vertices[1] = v02;
         vertices[2] = v03;
+
+        Color white = new Color(1.0, 1.0, 1.0);
+
+        if (v01.getColor() == null) {
+            v01.setColor(white);
+        }
+
+        if (v02.getColor() == null) {
+            v02.setColor(white);
+        }
+
+        if (v03.getColor() == null) {
+            v03.setColor(white);
+        }
     }
 
 
@@ -33,7 +45,8 @@ public class Triangle extends TriangleAbstract {
         double newx = (v1.getX() + v2.getX() + v3.getX())/3;
         double newy = (v1.getY() + v2.getY() + v3.getY())/3;
         double newz = (v1.getZ() + v2.getZ() + v3.getZ())/3;
-        return new Vector(newx, newy, newz);
+        //Color color = v1.getColor();
+        return new Vector(newx, newy, newz, null);
     }
 
     @Override
@@ -64,13 +77,14 @@ public class Triangle extends TriangleAbstract {
     @Override
     public void render(int[][][] framebuffer, boolean shownormal) {
        ScanConvertAbstract sca = new ScanConvertLine();
+       ColorAbstract white = new Color(1.0, 1.0, 1.0);
         for(int i = 0; i < vertices.length; i++){
             try{
                 int j = i + 1;
-                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[j].getX(), (int)vertices[j].getY(), framebuffer);        
+                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[j].getX(), (int)vertices[j].getY(), vertices[i].getColor(), vertices[j].getColor(), framebuffer);          
             }
             catch (ArrayIndexOutOfBoundsException e){
-                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[0].getX(), (int)vertices[0].getY(), framebuffer); 
+                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[0].getX(), (int)vertices[0].getY(), vertices[i].getColor(), vertices[0].getColor(), framebuffer); 
             }
         }
 
@@ -79,188 +93,166 @@ public class Triangle extends TriangleAbstract {
             VectorAbstract Center = getCenter();
             Normal = Normal.add(Center);
 
-            sca.bresenham((int)Center.getX(), (int)Center.getY(), (int)Normal.getX(), (int)Normal.getY(), framebuffer);
+            sca.bresenham((int)Center.getX(), (int)Center.getY(), (int)Normal.getX(), (int)Normal.getY(), white, white, framebuffer);
         }
 
     }
 
     @Override
     public TriangleAbstract rotateX(double theta, VectorAbstract fixedpoint, TriangleAbstract data) {
-         VectorAbstract[] vertices = data.getVertices();
-         VectorAbstract v1 = vertices[0];
-         VectorAbstract v2 = vertices[1];
-         VectorAbstract v3 = vertices[2];
-         Color v1color = v1.getColor();
-         Color v2color = v2.getColor();
-         Color v3color = v3.getColor();
+        AffineTransformationAbstract a = new AffineTransformation();
 
-         double[][] v1cord= {{v1.getX(), 0, 0, 0}, {0, v1.getY(), 0, 0}, {0, 0, v1.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv1cord = new Matrix(v1cord);
-         AffineTransformationAbstract rotV1 = new AffineTransformation();
-         mv1cord = rotV1.rotateX(theta, fixedpoint, mv1cord);
-         v1cord = mv1cord.getMatrix();
-         VectorAbstract newv1 = new Vector(v1cord[0][0], v1cord[1][1], v1cord[2][2], v1color);
+        VectorAbstract[] vertices = data.getVertices();
 
-         double[][] v2cord= {{v2.getX(), 0, 0, 0}, {0, v2.getY(), 0, 0}, {0, 0, v2.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv2cord = new Matrix(v2cord);
-         AffineTransformationAbstract rotV2 = new AffineTransformation();
-         mv2cord = rotV2.rotateX(theta, fixedpoint, mv2cord);
-         v2cord = mv2cord.getMatrix();
-         VectorAbstract newv2 = new Vector(v2cord[0][0], v2cord[1][1], v2cord[2][2], v2color);
+        double[][] datapoints = {{vertices[0].getX(), vertices[0].getY(), vertices[0].getZ(), 1.0},
+                             {vertices[1].getX(), vertices[1].getY(), vertices[1].getZ(), 1.0},
+                             {vertices[2].getX(), vertices[2].getY(), vertices[2].getZ(), 1.0}
+                            };
 
-         double[][] v3cord= {{v3.getX(), 0, 0, 0}, {0, v3.getY(), 0, 0}, {0, 0, v3.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv3cord = new Matrix(v3cord);
-         AffineTransformationAbstract rotV3 = new AffineTransformation();
-         mv3cord = rotV3.rotateX(theta, fixedpoint, mv3cord);
-         v3cord = mv3cord.getMatrix();
-         VectorAbstract newv3 = new Vector(v3cord[0][0], v3cord[1][1], v3cord[2][2], v3color);
-         
-         TriangleAbstract rotated = new Triangle(newv1, newv2, newv3);
+        MatrixAbstract mdatapoints = new Matrix(datapoints);
 
-         return rotated;
+        MatrixAbstract rotateX = a.rotateX(theta, fixedpoint, mdatapoints);
+
+        double[][] result = rotateX.getMatrix();
+
+        for (int i = 0; i < vertices.length; i++){
+            vertices[i].setX(result[i][0]);
+            vertices[i].setY(result[i][1]);
+            vertices[i].setZ(result[i][2]);
+        }
+        
+        Triangle rotated = new Triangle(vertices[0], vertices[1], vertices[2]);
+
+        return rotated;
     }
 
     @Override
     public TriangleAbstract rotateY(double theta, VectorAbstract fixedpoint, TriangleAbstract data) {
-         VectorAbstract[] vertices = data.getVertices();
-         VectorAbstract v1 = vertices[0];
-         VectorAbstract v2 = vertices[1];
-         VectorAbstract v3 = vertices[2];
-         Color v1color = v1.getColor();
-         Color v2color = v2.getColor();
-         Color v3color = v3.getColor();
+         AffineTransformationAbstract a = new AffineTransformation();
 
-         double[][] v1cord= {{v1.getX(), 0, 0, 0}, {0, v1.getY(), 0, 0}, {0, 0, v1.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv1cord = new Matrix(v1cord);
-         AffineTransformationAbstract rotV1 = new AffineTransformation();
-         mv1cord = rotV1.rotateY(theta, fixedpoint, mv1cord);
-         v1cord = mv1cord.getMatrix();
-         VectorAbstract newv1 = new Vector(v1cord[0][0], v1cord[1][1], v1cord[2][2], v1color);
+        VectorAbstract[] vertices = data.getVertices();
 
-         double[][] v2cord= {{v2.getX(), 0, 0, 0}, {0, v2.getY(), 0, 0}, {0, 0, v2.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv2cord = new Matrix(v2cord);
-         AffineTransformationAbstract rotV2 = new AffineTransformation();
-         mv2cord = rotV2.rotateY(theta, fixedpoint, mv2cord);
-         v2cord = mv2cord.getMatrix();
-         VectorAbstract newv2 = new Vector(v2cord[0][0], v2cord[1][1], v2cord[2][2], v2color);
-         
-         double[][] v3cord= {{v3.getX(), 0, 0, 0}, {0, v3.getY(), 0, 0}, {0, 0, v3.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv3cord = new Matrix(v3cord);
-         AffineTransformationAbstract rotV3 = new AffineTransformation();
-         mv3cord = rotV3.rotateY(theta, fixedpoint, mv3cord);
-         v3cord = mv3cord.getMatrix();
-         VectorAbstract newv3 = new Vector(v3cord[0][0], v3cord[1][1], v3cord[2][2], v3color);
-         
-         TriangleAbstract rotated = new Triangle(newv1, newv2, newv3);
+        double[][] datapoints = {{vertices[0].getX(), vertices[0].getY(), vertices[0].getZ(), 1.0},
+                             {vertices[1].getX(), vertices[1].getY(), vertices[1].getZ(), 1.0},
+                             {vertices[2].getX(), vertices[2].getY(), vertices[2].getZ(), 1.0}
+                            };
 
-         return rotated;
+        MatrixAbstract mdatapoints = new Matrix(datapoints);
+
+        MatrixAbstract rotateX = a.rotateY(theta, fixedpoint, mdatapoints);
+
+        double[][] result = rotateX.getMatrix();
+
+        for (int i = 0; i < vertices.length; i++){
+            vertices[i].setX(result[i][0]);
+            vertices[i].setY(result[i][1]);
+            vertices[i].setZ(result[i][2]);
+        }
+        
+        Triangle rotated = new Triangle(vertices[0], vertices[1], vertices[2]);
+
+        return rotated;
     }
 
     @Override
     public TriangleAbstract rotateZ(double theta, VectorAbstract fixedpoint, TriangleAbstract data) {
-         VectorAbstract[] vertices = data.getVertices();
-         VectorAbstract v1 = vertices[0];
-         VectorAbstract v2 = vertices[1];
-         VectorAbstract v3 = vertices[2];
-         Color v1color = v1.getColor();
-         Color v2color = v2.getColor();
-         Color v3color = v3.getColor();
+        AffineTransformationAbstract a = new AffineTransformation();
 
-         double[][] v1cord= {{v1.getX(), 0, 0, 0}, {0, v1.getY(), 0, 0}, {0, 0, v1.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv1cord = new Matrix(v1cord);
-         AffineTransformationAbstract rotV1 = new AffineTransformation();
-         mv1cord = rotV1.rotateZ(theta, fixedpoint, mv1cord);
-         v1cord = mv1cord.getMatrix();
-         VectorAbstract newv1 = new Vector(v1cord[0][0], v1cord[1][1], v1cord[2][2], v1color);
+        VectorAbstract[] vertices = data.getVertices();
 
-         double[][] v2cord= {{v2.getX(), 0, 0, 0}, {0, v2.getY(), 0, 0}, {0, 0, v2.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv2cord = new Matrix(v2cord);
-         AffineTransformationAbstract rotV2 = new AffineTransformation();
-         mv2cord = rotV2.rotateZ(theta, fixedpoint, mv2cord);
-         v2cord = mv2cord.getMatrix();
-         VectorAbstract newv2 = new Vector(v2cord[0][0], v2cord[1][1], v2cord[2][2], v2color);
-         
-         double[][] v3cord= {{v3.getX(), 0, 0, 0}, {0, v3.getY(), 0, 0}, {0, 0, v3.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv3cord = new Matrix(v3cord);
-         AffineTransformationAbstract rotV3 = new AffineTransformation();
-         mv3cord = rotV3.rotateZ(theta, fixedpoint, mv3cord);
-         v3cord = mv3cord.getMatrix();
-         VectorAbstract newv3 = new Vector(v3cord[0][0], v3cord[1][1], v3cord[2][2], v3color);
-         
-         TriangleAbstract rotated = new Triangle(newv1, newv2, newv3);
+        double[][] datapoints = {{vertices[0].getX(), vertices[0].getY(), vertices[0].getZ(), 1.0},
+                             {vertices[1].getX(), vertices[1].getY(), vertices[1].getZ(), 1.0},
+                             {vertices[2].getX(), vertices[2].getY(), vertices[2].getZ(), 1.0}
+                            };
 
-         return rotated;
+        MatrixAbstract mdatapoints = new Matrix(datapoints);
+
+        MatrixAbstract rotateX = a.rotateZ(theta, fixedpoint, mdatapoints);
+
+        double[][] result = rotateX.getMatrix();
+
+        for (int i = 0; i < vertices.length; i++){
+            vertices[i].setX(result[i][0]);
+            vertices[i].setY(result[i][1]);
+            vertices[i].setZ(result[i][2]);
+        }
+        
+        Triangle rotated = new Triangle(vertices[0], vertices[1], vertices[2]);
+
+        return rotated;
     }
 
     @Override
     public TriangleAbstract translate(VectorAbstract transvec, TriangleAbstract data) {
-         VectorAbstract[] vertices = data.getVertices();
-         VectorAbstract v1 = vertices[0];
-         VectorAbstract v2 = vertices[1];
-         VectorAbstract v3 = vertices[2];
-         Color v1color = v1.getColor();
-         Color v2color = v2.getColor();
-         Color v3color = v3.getColor();
+        AffineTransformationAbstract a = new AffineTransformation();
 
-         double[][] v1cord= {{v1.getX(), 0, 0, 0}, {0, v1.getY(), 0, 0}, {0, 0, v1.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv1cord = new Matrix(v1cord);
-         AffineTransformationAbstract rotV1 = new AffineTransformation();
-         mv1cord = rotV1.translate(transvec, mv1cord);
-         v1cord = mv1cord.getMatrix();
-         VectorAbstract newv1 = new Vector(v1cord[0][0], v1cord[1][1], v1cord[2][2], v1color);
+        VectorAbstract[] vertices = data.getVertices();
 
-         double[][] v2cord= {{v2.getX(), 0, 0, 0}, {0, v2.getY(), 0, 0}, {0, 0, v2.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv2cord = new Matrix(v2cord);
-         AffineTransformationAbstract rotV2 = new AffineTransformation();
-         mv2cord = rotV2.translate(transvec, mv2cord);
-         v2cord = mv2cord.getMatrix();
-         VectorAbstract newv2 = new Vector(v2cord[0][0], v2cord[1][1], v2cord[2][2], v2color);
-         
-         double[][] v3cord= {{v3.getX(), 0, 0, 0}, {0, v3.getY(), 0, 0}, {0, 0, v3.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv3cord = new Matrix(v3cord);
-         AffineTransformationAbstract rotV3 = new AffineTransformation();
-         mv3cord = rotV3.translate(transvec, mv3cord);
-         v3cord = mv3cord.getMatrix();
-         VectorAbstract newv3 = new Vector(v3cord[0][0], v3cord[1][1], v3cord[2][2], v3color);
-         
-         TriangleAbstract translated = new Triangle(newv1, newv2, newv3);
+        double[][] datapoints = {{vertices[0].getX(), vertices[0].getY(), vertices[0].getZ(), 1.0},
+                             {vertices[1].getX(), vertices[1].getY(), vertices[1].getZ(), 1.0},
+                             {vertices[2].getX(), vertices[2].getY(), vertices[2].getZ(), 1.0}
+                            };
 
-         return translated;
+        MatrixAbstract mdatapoints = new Matrix(datapoints);
+
+        MatrixAbstract mtranslation = a.translate(transvec, mdatapoints);
+
+        double[][] result = mtranslation.getMatrix();
+
+        for (int i = 0; i < vertices.length; i++){
+            vertices[i].setX(result[i][0]);
+            vertices[i].setY(result[i][1]);
+            vertices[i].setZ(result[i][2]);
+        }
+        
+        Triangle p = new Triangle(vertices[0], vertices[1], vertices[2]);
+
+        return p;
     }
 
     @Override
     public TriangleAbstract scale(VectorAbstract factor, VectorAbstract fixedpoint, TriangleAbstract data) {
+        AffineTransformationAbstract a = new AffineTransformation();
+
+        VectorAbstract center = data.getCenter();
+        VectorAbstract centering = new Vector(fixedpoint.getX() - center.getX(),
+                                              fixedpoint.getY() - center.getY(),
+                                              fixedpoint.getZ() - center.getZ(),
+                                              null);
+
+        VectorAbstract uncentering = new Vector(-centering.getX(), -centering.getY(), -centering.getZ(), null);
+
         VectorAbstract[] vertices = data.getVertices();
-         VectorAbstract v1 = vertices[0];
-         VectorAbstract v2 = vertices[1];
-         VectorAbstract v3 = vertices[2];
-         Color v1color = v1.getColor();
-         Color v2color = v2.getColor();
-         Color v3color = v3.getColor();
 
-         double[][] v1cord= {{v1.getX(), 0, 0, 0}, {0, v1.getY(), 0, 0}, {0, 0, v1.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv1cord = new Matrix(v1cord);
-         AffineTransformationAbstract rotV1 = new AffineTransformation();
-         mv1cord = rotV1.scale(factor, fixedpoint, mv1cord);
-         v1cord = mv1cord.getMatrix();
-         VectorAbstract newv1 = new Vector(v1cord[0][0], v1cord[1][1], v1cord[2][2], v1color);
+        double[][] datapoints = {{vertices[0].getX(), vertices[0].getY(), vertices[0].getZ(), 1.0},
+                             {vertices[1].getX(), vertices[1].getY(), vertices[1].getZ(), 1.0},
+                             {vertices[2].getX(), vertices[2].getY(), vertices[2].getZ(), 1.0}
+                            };
 
-         double[][] v2cord= {{v2.getX(), 0, 0, 0}, {0, v2.getY(), 0, 0}, {0, 0, v2.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv2cord = new Matrix(v2cord);
-         AffineTransformationAbstract rotV2 = new AffineTransformation();
-         mv2cord = rotV2.scale(factor, fixedpoint, mv2cord);
-         v2cord = mv2cord.getMatrix();
-         VectorAbstract newv2 = new Vector(v2cord[0][0], v2cord[1][1], v2cord[2][2], v2color);
-         
-         double[][] v3cord= {{v3.getX(), 0, 0, 0}, {0, v3.getY(), 0, 0}, {0, 0, v3.getZ(), 0}, {0, 0, 0, 1}};
-         MatrixAbstract mv3cord = new Matrix(v3cord);
-         AffineTransformationAbstract rotV3 = new AffineTransformation();
-         mv3cord = rotV3.scale(factor, fixedpoint, mv3cord);
-         v3cord = mv3cord.getMatrix();
-         VectorAbstract newv3 = new Vector(v3cord[0][0], v3cord[1][1], v3cord[2][2], v3color);
-         
-         TriangleAbstract scaled = new Triangle(newv1, newv2, newv3);
+        MatrixAbstract mdatapoints = new Matrix(datapoints);
 
-         return scaled;
+        MatrixAbstract toFP = a.translate(centering, mdatapoints);
+        MatrixAbstract scale = a.scale(factor, fixedpoint, toFP);
+        MatrixAbstract toOriginalLocation = a.translate(uncentering, scale);
+
+        double[][] result = toOriginalLocation.getMatrix();
+
+        for (int i = 0; i < vertices.length; i++){
+            vertices[i].setX(result[i][0]);
+            vertices[i].setY(result[i][1]);
+            vertices[i].setZ(result[i][2]);
+        }
+        
+        Triangle p = new Triangle(vertices[0], vertices[1], vertices[2]);
+
+        return p;
     }
+
+    public VectorAbstract[] getVertices() {
+		VectorAbstract[] v = {((Vector)this.vertices[0]).copy(),
+							  ((Vector)this.vertices[1]).copy(),
+							  ((Vector)this.vertices[2]).copy()};
+
+		return v;
+	}
 }
