@@ -85,17 +85,31 @@ public class Triangle extends TriangleAbstract {
 
     @Override
     public void render(int[][][] framebuffer, boolean shownormal, Shader.FILLSTYLE fill, VectorAbstract viewpoint) {
-       ScanConvertAbstract sca = new ScanConvertLine();
-       ColorAbstract white = new Color(1.0, 1.0, 1.0);
-        for(int i = 0; i < vertices.length; i++){
-            try{
-                int j = i + 1;
-                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[j].getX(), (int)vertices[j].getY(), vertices[i].getColor(), vertices[j].getColor(), framebuffer);          
-            }
-            catch (ArrayIndexOutOfBoundsException e){
-                sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[0].getX(), (int)vertices[0].getY(), vertices[i].getColor(), vertices[0].getColor(), framebuffer); 
+        if (!isVisible(viewpoint)){
+            return;
+        }
+
+        ScanConvertAbstract sca = new ScanConvertLine();
+        ColorAbstract white = new Color(1.0, 1.0, 1.0);
+        if(fill == Shader.FILLSTYLE.NONE){
+            for(int i = 0; i < vertices.length; i++){
+                try{
+                   int j = i + 1;
+                   sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[j].getX(), (int)vertices[j].getY(), vertices[i].getColor(), vertices[j].getColor(), framebuffer);          
+                }
+                catch (ArrayIndexOutOfBoundsException e){
+                    sca.bresenham((int)vertices[i].getX(), (int)vertices[i].getY(), (int)vertices[0].getX(), (int)vertices[0].getY(), vertices[i].getColor(), vertices[0].getColor(), framebuffer); 
+                }
             }
         }
+        else if (fill == Shader.FILLSTYLE.FILL){
+            Shader sh = new Shader();
+            sh.solidFill(this, framebuffer);
+        } else if (fill == Shader.FILLSTYLE.SHADE){
+            Shader sh = new Shader();
+            sh.shadeFill(this, framebuffer);
+        }
+
 
         if(shownormal == true){
             VectorAbstract Normal = getNormal().unit().mult(20);
@@ -296,7 +310,14 @@ public class Triangle extends TriangleAbstract {
 
     @Override
     public boolean isVisible(VectorAbstract viewpoint) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isVisible'");
+        VectorAbstract Normal = getNormal().unit();
+        VectorAbstract VP = viewpoint.unit();
+        double angle = Math.toDegrees(VP.angleBetween(Normal));
+        if( angle >= 90){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
