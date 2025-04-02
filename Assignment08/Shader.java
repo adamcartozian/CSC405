@@ -7,6 +7,8 @@ import Assignment06.VectorAbstract;
 
 public class Shader extends ShaderAbstract{
 
+   
+
     @Override
     public void solidFill(TriangleAbstract tri, int[][][] framebuffer) {
         ScanConvertLine sc = new ScanConvertLine();
