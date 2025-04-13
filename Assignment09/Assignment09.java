@@ -1,3 +1,5 @@
+package Assignment09;
+
 import java.io.IOException;
 import Common.ReadWriteImage;
 import Assignment06.VectorAbstract;
