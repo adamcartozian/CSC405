@@ -11,6 +11,7 @@ import Assignment06.Color;
 import Assignment06.ColorAbstract;
 
 public class Curves {
+    
     public void drawHermiteCurve(VectorAbstract p0, VectorAbstract p1, VectorAbstract t0, VectorAbstract t1,
                                   ScanConvertLine drawer, ArrayList<VectorAbstract> points) {
         if (points == null) {

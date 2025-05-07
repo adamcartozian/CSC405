@@ -115,18 +115,15 @@ public class ScanConvertLine extends ScanConvertAbstract {
     
             int err = dx - dy;
     
-            int z = 0; // Default z-value, update this if needed for depth or other data
+            int z = 0; // Default z-value
     
             while (true) {
-                // Add the current 3D point to the list
-                points.add(new Vector(x0, y0, z, null)); // Assuming Vector3D extends VectorAbstract
+                // ✅ FIX: use c0 as color instead of null
+                points.add(new Vector(x0, y0, z, c0));
     
-                if (x0 == x1 && y0 == y1) {
-                    break;
-                }
+                if (x0 == x1 && y0 == y1) break;
     
                 int e2 = 2 * err;
-    
                 if (e2 > -dy) {
                     err -= dy;
                     x0 += sx;
@@ -141,5 +138,4 @@ public class ScanConvertLine extends ScanConvertAbstract {
             e.printStackTrace();
         }
     }
-    
 }
